@@ -1,24 +1,56 @@
 {
-  "name": "example",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "scripts": {
-    "start": "parcel index.html",
-    "build": "parcel build index.html"
-  },
+  "name": "my-react-app",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "react-app-polyfill": "^1.0.0"
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
+    "@testing-library/user-event": "^12.8.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "4.0.3",
+    "ros-ui-react": "../",
+    "sass": "^1.32.8",
+    "web-vitals": "^1.1.0"
   },
-  "alias": {
-    "react": "../node_modules/react",
-    "react-dom": "../node_modules/react-dom/profiling",
-    "scheduler/tracing": "../node_modules/scheduler/tracing-profiling"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
+    ]
   },
   "devDependencies": {
-    "@types/react": "^16.9.11",
-    "@types/react-dom": "^16.8.4",
-    "parcel": "^1.12.3",
-    "typescript": "^3.4.5"
+    "@babel/plugin-proposal-class-properties": "^7.13.0"
   }
 }
