@@ -30,6 +30,8 @@ var rAF = window.mozRequestAnimationFrame ||
 
 class RealGamepad extends Component {
 
+    gamepadScanIntervalId = 0;
+    rosSendIntervalId = 0;
   constructor(props) {
     super(props);
     this.controllers = {};
@@ -39,6 +41,10 @@ class RealGamepad extends Component {
       t: 0
     };
     this.ros = new ROSLIB.Ros();
+  }
+
+  static defaultProps = {
+    deadzone: 0.05
   }
 
 
@@ -127,7 +133,7 @@ class RealGamepad extends Component {
 
     this.topic = new ROSLIB.Topic({
       ros: this.ros,
-      name: '/joy6',
+      name: '/joy',
       messageType: 'sensor_msgs/Joy'
     });
 
@@ -140,16 +146,25 @@ class RealGamepad extends Component {
       window.addEventListener("webkitgamepadconnected", this.connecthandler);
       window.addEventListener("webkitgamepaddisconnected", this.disconnecthandler);
     } else {
-      setInterval(this.scangamepads, 500);
+      this.gamepadScanIntervalId = setInterval(this.scangamepads, 500);
     }
 
-    setInterval(this.timerEnd, 20);
+    this.rosSendIntervalId = setInterval(this.timerEnd, 20);
 
+  }
+
+  componentWillUnmount () {
+    this.ros.close();
+    clearInterval(this.gamepadScanIntervalId);
+    clearInterval(this.rosSendIntervalId);
   }
 
 
   timerEnd = () => {
     this.updateStatus();
+
+    
+    let scale = -1. / (1. - this.props.deadzone);
 
     var joyMsg = {
       header:
@@ -164,7 +179,7 @@ class RealGamepad extends Component {
 
     if (this.controllers[0]) {
       for (var i = 0; i < this.controllers[0].axes.length; i++) {
-        joyMsg.axes.push(this.controllers[0].axes[i]);
+        joyMsg.axes.push(this.controllers[0].axes[i]*scale);
       }
       for (var i = 0; i < this.controllers[0].buttons.length; i++) {
         joyMsg.buttons.push(this.controllers[0].buttons[i].pressed);

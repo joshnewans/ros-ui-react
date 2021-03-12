@@ -71,6 +71,10 @@ class SimGamepad extends Component {
 
   }
 
+  componentWillUnmount () {
+    this.ros.close();
+  }
+
 
   timerEnd = () => {
 
