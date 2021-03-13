@@ -13,19 +13,8 @@ import {
 } from '@coreui/react'
 import ROSLIB from 'roslib'
 import AxisBar from './AxisBar';
-
-
-
-
-
-
-// GAMEPAD HANDLING
-var haveEvents = 'GamepadEvent' in window;
-var haveWebkitEvents = 'WebKitGamepadEvent' in window;
-var rAF = window.mozRequestAnimationFrame ||
-  window.webkitRequestAnimationFrame ||
-  window.requestAnimationFrame;
-
+import { applyDeadzone } from './JoystickHelpers'
+import Gamepads from 'gamepads';
 
 
 class RealGamepad extends Component {
@@ -44,10 +33,8 @@ class RealGamepad extends Component {
   }
 
   static defaultProps = {
-    deadzone: 0.05
+    deadzone: 0.25
   }
-
-
 
 
 
@@ -57,8 +44,8 @@ class RealGamepad extends Component {
 
 
   addgamepad = (gamepad) => {
-    this.controllers[gamepad.index] = gamepad;
-    console.log("on");
+    this.controllers[gamepad.gamepad.index] = gamepad;
+    console.log("Gamepad Connected");
   }
 
 
@@ -67,20 +54,14 @@ class RealGamepad extends Component {
   }
 
   removegamepad = (gamepad) => {
-    // var d = document.getElementById("controller" + gamepad.index);
-    // document.body.removeChild(d);
-    console.log("off");
-    delete this.controllers[gamepad.index];
+    console.log("Gamepad Disconnected");
+    delete this.controllers[gamepad.gamepad.index];
   }
 
   updateStatus = () => {
-    this.scangamepads();
-    for (var j = 0; j < this.controllers.length; j++) {
-      var controller = this.controllers[j];
-      // var d = document.getElementById("controller" + j);
-      // var buttons = d.getElementsByClassName("button");
+    for (const [key, value] of Object.entries(this.controllers)) {
+      var controller = this.controllers[key].gamepad;
       for (var i = 0; i < controller.buttons.length; i++) {
-        // var b = buttons[i];
         var val = controller.buttons[i];
         var pressed = val == 1.0;
         var touched = false;
@@ -92,23 +73,9 @@ class RealGamepad extends Component {
           val = val.value;
         }
         var pct = Math.round(val * 100) + "%";
-        console.log("b " + String(i) + String(pressed));
       }
     }
   }
-
-
-  scangamepads = () => {
-    var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
-    for (var i = 0; i < gamepads.length; i++) {
-      if (gamepads[i] && (gamepads[i].index in this.controllers)) {
-        this.controllers[gamepads[i].index] = gamepads[i];
-      }
-    }
-  }
-
-
-
 
 
   componentDidMount() {
@@ -137,17 +104,10 @@ class RealGamepad extends Component {
       messageType: 'sensor_msgs/Joy'
     });
 
+    Gamepads.start();
 
-    // Trigger connect/disconnect
-    if (haveEvents) {
-      window.addEventListener("gamepadconnected", this.connecthandler);
-      window.addEventListener("gamepaddisconnected", this.disconnecthandler);
-    } else if (haveWebkitEvents) {
-      window.addEventListener("webkitgamepadconnected", this.connecthandler);
-      window.addEventListener("webkitgamepaddisconnected", this.disconnecthandler);
-    } else {
-      this.gamepadScanIntervalId = setInterval(this.scangamepads, 500);
-    }
+    Gamepads.addEventListener("connect", this.connecthandler);
+    Gamepads.addEventListener("disconnect", this.disconnecthandler);
 
     this.rosSendIntervalId = setInterval(this.timerEnd, 20);
 
@@ -155,7 +115,7 @@ class RealGamepad extends Component {
 
   componentWillUnmount () {
     this.ros.close();
-    clearInterval(this.gamepadScanIntervalId);
+    Gamepads.stop();
     clearInterval(this.rosSendIntervalId);
   }
 
@@ -163,8 +123,7 @@ class RealGamepad extends Component {
   timerEnd = () => {
     this.updateStatus();
 
-    
-    let scale = -1. / (1. - this.props.deadzone);
+
 
     var joyMsg = {
       header:
@@ -178,23 +137,20 @@ class RealGamepad extends Component {
     };
 
     if (this.controllers[0]) {
-      for (var i = 0; i < this.controllers[0].axes.length; i++) {
-        joyMsg.axes.push(this.controllers[0].axes[i]*scale);
+      var controller = this.controllers[0].gamepad;
+      for (var i = 0; i < controller.axes.length; i++) {
+
+        joyMsg.axes.push(applyDeadzone(controller.axes[i], this.props.deadzone));
       }
-      for (var i = 0; i < this.controllers[0].buttons.length; i++) {
-        joyMsg.buttons.push(this.controllers[0].buttons[i].pressed);
+      for (var i = 0; i < controller.buttons.length; i++) {
+        joyMsg.buttons.push(controller.buttons[i].pressed);
       }
       this.topic.publish(joyMsg);
 
-    }
-
-
-
-    if (this.controllers[0]) {
       this.setState((prevState) => ({ t: prevState.t + 1 }));
 
-      var buttonVals = this.controllers[0].buttons.map((item) => item.pressed);
-      var axes = this.controllers[0].axes;
+      var buttonVals = controller.buttons.map((item) => item.pressed);
+      var axes = controller.axes;
 
       this.setState({ a: buttonVals, axes: axes });
 
@@ -209,12 +165,12 @@ class RealGamepad extends Component {
 
   render() {
 
-    let cols = this.state.a.map((item, index) => <CCol col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let cols = this.state.a.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <CButton block color={item > 0 ? "primary" : "secondary"}>{index}</CButton>
     </CCol>);
 
 
-    let axisDisplays = this.state.axes.map((item, index) => <CCol col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let axisDisplays = this.state.axes.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <AxisBar value={item}/>
     </CCol>);
 

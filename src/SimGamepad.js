@@ -133,16 +133,16 @@ class SimGamepad extends Component {
 
   render() {
 
-    let cols = this.state.buttons.map((item, index) => <CCol col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let cols = this.state.buttons.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <CButton block color={item > 0 ? "primary" : "secondary"} onPointerDown={() => this.buttonOn(index)} onPointerUp={() => this.buttonOff(index)} >{index}</CButton>
     </CCol>);
 
-    let stickDisplays = this.state.joys.map((item, index) => <CCol col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let stickDisplays = this.state.joys.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <SimJoystick size={40} move={(x,y) => this.joyMove(x,y, index)} stop={() => this.joyStop(index)} />
       
     </CCol>);
 
-    let axisDisplays = this.state.axes.map((item, index) => <CCol col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let axisDisplays = this.state.axes.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <AxisBar value={item}/>
     </CCol>);
 
