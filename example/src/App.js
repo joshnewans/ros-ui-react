@@ -1,17 +1,17 @@
-import { HashRouter, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './scss/style.scss';
 import RealGamepadDemo from './RealGamepadDemo';
 import SimGamepadDemo from './SimGamepadDemo';
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Switch>
         <Route exact path="/simgamepaddemo" name="Sim Gamepad Demo"><SimGamepadDemo /></Route>
         <Route exact path="/realgamepaddemo" name="Real Gamepad Demo"><RealGamepadDemo /></Route>
         <Route path="/" name="Home"><Home /></Route>
       </Switch>
-      </HashRouter>
+      </BrowserRouter>
   );
 }
 
@@ -23,13 +23,13 @@ function Home() {
     <nav>
           <ul>
             <li>
-              <Link to="/">Home</Link>
+              <a href="/">Home</a>
             </li>
             <li>
-              <Link to="/simgamepaddemo">Sim Gamepad Demo</Link>
+              <a href="/simgamepaddemo">Sim Gamepad Demo</a>
             </li>
             <li>
-              <Link to="/realgamepaddemo">Real Gamepad Demo</Link>
+              <a href="/realgamepaddemo">Real Gamepad Demo</a>
             </li>
           </ul>
       </nav>
