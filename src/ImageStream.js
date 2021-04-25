@@ -20,14 +20,17 @@ class ImageStream extends Component {
 
     return (
 
-      <CCard>
-        <CCardHeader>
-          <strong>Image Stream</strong>
-        </CCardHeader>
-        <CCardBody>
-        <img src={this.props.src}></img>
-        </CCardBody>
-      </CCard>
+      <CCard style={{width: "100%", height: "100%"}}>
+      <CCardHeader>
+        <strong>Image Stream</strong>
+      </CCardHeader>
+      <CCardBody>
+        <img src={this.props.src} style={{width: "100%", height: "100%", objectFit: "contain"}}></img>
+      </CCardBody>
+    </CCard>
+
+
+    
 
     );
   }
