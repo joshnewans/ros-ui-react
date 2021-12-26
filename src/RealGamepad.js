@@ -96,7 +96,7 @@ class RealGamepad extends Component {
       console.log('Connection closed.');
     });
 
-    this.ros.connect('ws://192.168.5.180:9090');
+    this.ros.connect('ws://192.168.5.179:9090');
 
     this.topic = new ROSLIB.Topic({
       ros: this.ros,
@@ -128,7 +128,7 @@ class RealGamepad extends Component {
     var joyMsg = {
       header:
       {
-        seq: 0,
+        // seq: 0,
         stamp: 0,
         frame_id: ""
       },
@@ -143,9 +143,10 @@ class RealGamepad extends Component {
         joyMsg.axes.push(applyDeadzone(controller.axes[i], this.props.deadzone));
       }
       for (var i = 0; i < controller.buttons.length; i++) {
-        joyMsg.buttons.push(controller.buttons[i].pressed);
+        joyMsg.buttons.push(controller.buttons[i].pressed ? 1 : 0);
       }
       this.topic.publish(joyMsg);
+      // console.log(joyMsg);
 
       this.setState((prevState) => ({ t: prevState.t + 1 }));
 
