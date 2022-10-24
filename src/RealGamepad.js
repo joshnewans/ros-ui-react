@@ -7,9 +7,7 @@ import {
   CCol,
   CCard,
   CCardHeader,
-  CCardBody,
-  CProgress,
-  CProgressBar
+  CCardBody
 } from '@coreui/react'
 import ROSLIB from 'roslib'
 import AxisBar from './AxisBar';
@@ -25,7 +23,7 @@ class RealGamepad extends Component {
     super(props);
     this.controllers = {};
     this.state = {
-      a: [],
+      buttons: [],
       axes: [],
       t: 0
     };
@@ -79,8 +77,6 @@ class RealGamepad extends Component {
 
 
   componentDidMount() {
-    console.log("didmount");
-
 
     // If there is an error on the backend, an 'error' emit will be emitted.
     this.ros.on('error', function (error) {
@@ -96,7 +92,7 @@ class RealGamepad extends Component {
       console.log('Connection closed.');
     });
 
-    this.ros.connect('ws://192.168.5.179:9090');
+    this.ros.connect(this.props.rosbridgeAddress);
 
     this.topic = new ROSLIB.Topic({
       ros: this.ros,
@@ -129,7 +125,7 @@ class RealGamepad extends Component {
       header:
       {
         // seq: 0,
-        stamp: 0,
+        stamp: [0,0],
         frame_id: ""
       },
       axes: [],
@@ -146,16 +142,11 @@ class RealGamepad extends Component {
         joyMsg.buttons.push(controller.buttons[i].pressed ? 1 : 0);
       }
       this.topic.publish(joyMsg);
-      // console.log(joyMsg);
-
-      this.setState((prevState) => ({ t: prevState.t + 1 }));
 
       var buttonVals = controller.buttons.map((item) => item.pressed);
       var axes = controller.axes;
 
-      this.setState({ a: buttonVals, axes: axes });
-
-
+      this.setState((prevState) => ({ t: prevState.t + 1, buttons: buttonVals, axes: axes }));
 
     }
   }
@@ -166,8 +157,8 @@ class RealGamepad extends Component {
 
   render() {
 
-    let cols = this.state.a.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-      <CButton block color={item > 0 ? "primary" : "secondary"}>{index}</CButton>
+    let cols = this.state.buttons.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0  d-grid gap-2">
+      <CButton block="true" color={item > 0 ? "primary" : "secondary"}>{index}</CButton>
     </CCol>);
 
 

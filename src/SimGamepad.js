@@ -27,7 +27,7 @@ class SimGamepad extends Component {
     this.state = {
       buttons: [0,0,0,0],
       axes: [0,0,0,0],
-      joys: [0,0]
+      sticks: [0,0]
     };
     this.ros = new ROSLIB.Ros();
   }
@@ -35,13 +35,7 @@ class SimGamepad extends Component {
 
 
 
-
-
-
-
   componentDidMount() {
-    console.log("didmount");
-
 
     // If there is an error on the backend, an 'error' emit will be emitted.
     this.ros.on('error', function (error) {
@@ -57,15 +51,13 @@ class SimGamepad extends Component {
       console.log('Connection closed.');
     });
 
-    this.ros.connect('ws://192.168.5.180:9090');
+    this.ros.connect(this.props.rosbridgeAddress);
 
     this.topic = new ROSLIB.Topic({
       ros: this.ros,
-      name: '/joy7',
+      name: '/joy',
       messageType: 'sensor_msgs/Joy'
     });
-
-
 
     setInterval(this.timerEnd, 20);
 
@@ -78,20 +70,17 @@ class SimGamepad extends Component {
 
   timerEnd = () => {
 
-    var joyMsg = {
+    var joyMsg = new ROSLIB.Message({
       header:
       {
-        seq: 0,
-        stamp: 0,
+        // seq: 0,
+        stamp: [0,0],
         frame_id: ""
       },
       axes: [],
       buttons: []
-    };
+    });
 
-    // for (var i = 0; i < this.controllers[0].axes.length; i++) {
-    //   joyMsg.axes.push(this.controllers[0].axes[i]);
-    // }
 
     joyMsg.axes = this.state.axes;
     joyMsg.buttons = this.state.buttons;
@@ -133,11 +122,11 @@ class SimGamepad extends Component {
 
   render() {
 
-    let cols = this.state.buttons.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-      <CButton block color={item > 0 ? "primary" : "secondary"} onPointerDown={() => this.buttonOn(index)} onPointerUp={() => this.buttonOff(index)} >{index}</CButton>
+    let cols = this.state.buttons.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0 d-grid gap-2">
+      <CButton block="true" color={item > 0 ? "primary" : "secondary"} onPointerDown={() => this.buttonOn(index)} onPointerUp={() => this.buttonOff(index)} >{index}</CButton>
     </CCol>);
 
-    let stickDisplays = this.state.joys.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
+    let stickDisplays = this.state.sticks.map((item, index) => <CCol key={index} col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
       <SimJoystick size={40} move={(x,y) => this.joyMove(x,y, index)} stop={() => this.joyStop(index)} />
       
     </CCol>);
@@ -162,10 +151,6 @@ class SimGamepad extends Component {
           <CRow className="align-items-center mt-3" >
             {stickDisplays}
           </CRow>
-
-          
-          {/* <Joystick size={100} baseColor="red" stickColor="blue" move={handleMove} stop={handleStop}></Joystick> */}
-
         </CCardBody>
       </CCard>
 

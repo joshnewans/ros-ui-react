@@ -25,7 +25,7 @@ class AxisBar extends Component {
         <CProgress
         color="dark"
         value={50 * (this.props.value + 1)}
-        showValue
+        showvalue="true"
         className="mb-1"
       />
 

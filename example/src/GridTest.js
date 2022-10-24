@@ -1,11 +1,11 @@
-import { SimGamepad } from 'ros-ui-react';
+// import { SimGamepad } from 'ros-ui-react';
 import { RealGamepad } from 'ros-ui-react';
 import { ImageStream } from 'ros-ui-react';
 import './App.css';
 import './scss/style.scss';
 
 import React from "react";
-import _ from "lodash";
+// import _ from "lodash";
 import RGL, { WidthProvider } from "react-grid-layout";
 
 const ReactGridLayout = WidthProvider(RGL);
@@ -15,9 +15,9 @@ export default class GridTest extends React.PureComponent {
     onLayoutChange: function() {},
   };
 
-  constructor(props) {
-    super(props);
-  }
+  // constructor(props) {
+  //   super(props);
+  // }
 
 
   onLayoutChange(layout) {

@@ -6,10 +6,8 @@ import './scss/style.scss';
 function RealGamepadDemo() {
   return (
     <div className="App">
-      <RealGamepad />
-      {/* <ImageStream src="http://192.168.5.180:8080/stream?topic=/image_raw/uncompressed" /> */}
-      <ImageStream src="http://192.168.5.179:8080/stream?topic=/image_raw/uncompressed" />
-      {/* <ImageStream src="http://192.168.5.180:8080/stream?topic=/blob/image_blob" /> */}
+      <ImageStream src="http://localhost:8080/stream?topic=/camera/image_raw" />
+      <RealGamepad rosbridgeAddress="ws://localhost:9090"/>
     </div>
   );
 }
